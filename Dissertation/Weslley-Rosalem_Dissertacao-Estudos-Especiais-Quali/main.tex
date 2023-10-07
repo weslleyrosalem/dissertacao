@@ -1,0 +1,202 @@
+%
+% A Universidade Estadual Paulista "Júlio de Mesquita Filho"            
+% MODELO DE  RELATÓRIO 
+%
+\documentclass[
+	% -- opções da classe memoir --
+	12pt,				% tamanho da fonte
+	openright,			% capítulos começam em pág ímpar (insere página vazia caso preciso)
+	oneside,			% para impressão em verso e anverso. Oposto a oneside
+	a4paper,			% tamanho do papel. 
+	% -- opções da classe abntex2 --
+	%chapter=TITLE,		% títulos de capítulos convertidos em letras maiúsculas
+	%section=TITLE,		% títulos de seções convertidos em letras maiúsculas
+	%subsection=TITLE,	% títulos de subseções convertidos em letras maiúsculas
+	%subsubsection=TITLE,% títulos de subsubseções convertidos em letras maiúsculas
+	% -- opções do pacote babel --
+	english,			% idioma adicional para hifenização
+	french,				% idioma adicional para hifenização
+	spanish,			% idioma adicional para hifenização
+	brazil				% o último idioma é o principal do documento
+	]{abntex2}
+
+
+% Pacotes básicos 
+\usepackage[alf]{abntex2cite}
+\usepackage{chngcntr}
+\counterwithout{footnote}{chapter}
+\counterwithout{equation}{chapter}
+\usepackage{lmodern}			% Usa a fonte Latin Modern			
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+\usepackage{lastpage}			% Usado pela Ficha catalográfica
+\usepackage{indentfirst}		% Indenta o primeiro parágrafo de cada seção.
+\usepackage{color}				% Controle das cores
+\usepackage{graphicx}			% Inclusão de gráficos
+\usepackage{microtype} 			% para melhorias de justificação
+\usepackage{afterpage}
+\usepackage{amsmath}
+\usepackage{amssymb,url}
+\usepackage{hhline}
+\usepackage{xcolor,tikz,bm,colortbl}
+\usepackage[ruled,linesnumbered,vlined,portuguese,onelanguage]{algorithm2e}
+
+%Weslley-lars
+\usepackage{float}
+\usepackage{longtable,ltcaption} % para as tabelas
+\usepackage{hyperref} %citacoes customizadas
+\usepackage{rotating}
+\usepackage{pdflscape}
+\usepackage{longtable}
+\usepackage{adjustbox}
+\usepackage{adjustbox}
+\usepackage{lipsum}
+\usepackage{pdfpages}
+\usepackage{longtable}
+%\usepackage{biblatex}
+%\usepackage[style=numeric]{biblatex}  % Include the biblatex package
+
+
+
+% Algumas mudanças devem ser realizadas neste arquivo, por exemplo, financiadora do projeto
+\usepackage{0-libs/customizacoes}
+
+
+% Informações de dados para CAPA e FOLHA DE ROSTO
+\titulo{AIOPs - Utilizando uma Arquitetura Transformer em Time Series com Prometheus}
+\autor{Weslley Rosalem}
+\local{Bauru}
+\data{2023}
+\orientador{Prof. Dr. Kelton Augusto C. Pontara}
+\instituicao{}
+\tipotrabalho{Dissertação de Mestrado Acadêmico}
+% O preambulo deve conter o tipo do trabalho, o objetivo, 
+% o nome da instituição e a área de concentração 
+\preambulo{Trabalho apresentado para disciplina de estudos especiais, parte do  Programa de Pós-Graduação em Ciência da Computação, do Instituto de Biociências, Letras e Ciências Exatas da Universidade Estadual Paulista ``Júlio de Mesquita Filho", Câmpus de Bauru.}
+% ---
+
+% Configurações de aparência do PDF final
+
+% alterando o aspecto da cor preta
+\definecolor{black}{RGB}{0,0,0}
+\definecolor{blue}{RGB}{0,0,190}
+
+% informações do PDF
+\makeatletter
+\hypersetup{
+     	%pagebackref=true,
+		pdftitle={\@title}, 
+		pdfauthor={\@author},
+    	pdfsubject={\imprimirpreambulo},
+	    pdfcreator={LaTeX com abnTeX2},
+		pdfkeywords={abnt}{latex}{abntex}{abntex2}{dissertação}, 
+		colorlinks=true,       		% false: boxed links; true: colored links
+    	linkcolor=blue,          	% color of internal links
+    	citecolor=blue,        		% color of links to bibliography
+    	filecolor=magenta,      		% color of file links
+		urlcolor=black,
+		bookmarksdepth=4
+}
+\makeatother
+
+% O tamanho do parágrafo é dado por:
+\setlength{\parindent}{1.3cm}
+
+% Controle do espaçamento entre um parágrafo e outro:
+\setlength{\parskip}{0.2cm}  % tente também \onelineskip
+
+% compila o indice
+\makeindex
+% ---
+
+% ----
+% Início do documento
+% ----
+\begin{document}
+
+% Seleciona o idioma do documento (conforme pacotes do babel)
+%\selectlanguage{english}
+%\selectlanguage{brazil}
+
+
+% Retira espaço extra obsoleto entre as frases.
+\frenchspacing % ----------------------------------------------------------
+% ELEMENTOS PRÉ-TEXTUAIS
+% ----------------------------------------------------------
+% Capa
+\imprimircapa
+% ---
+% Folha de rosto
+% (o * indica que haverá a ficha bibliográfica)
+\imprimirfolhaderosto*
+
+
+% inserir lista de abreviaturas e siglas
+% ---
+\begin{siglas}
+\item[AIOPs] - \textit{Artificial Intelligence for IT Operations}
+\item[ANN] - \textit{Artificial Neural Network}
+\item[CPU] - \textit{Central Processing Unit}
+\item[DBSCAN] - \textit{Density-based spatial clustering of applications with noise}
+\item[DP] - \textit{Deep Learning}
+\item[IDS] - \textit{Intrusion Detection System}
+\item[LSTM] - \textit{Long short-term memory}
+\item[ML] - \textit{Machine Learning}
+\item[MLOPs] - \textit{Machine Learning Operations}
+\item[NN] - \textit{Neural Network}
+\item[NNET] - \textit{Neural Network}
+\item[SMOTE] - \textit{Synthetic Minority Over-sampling Technique}
+\item[RNN] - \textit{Recurrent neural network}
+\item[SVM] - \textit{Support Vector Machine}
+\item[TF] - \textit{Transformer}
+\item[TS] - \textit{Time Series}
+\item[TSTF] - \textit{Time Series Transformer}
+\end{siglas}
+% ---
+
+% inserir o sumario
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents
+\cleardoublepage
+
+% ----------------------------------------------------------
+% ELEMENTOS TEXTUAIS
+% ----------------------------------------------------------
+\pagestyle{simple}
+
+% ----------------------------------------------------------
+%\input{chapters/1-resumo.tex}
+%\input{chapters/2-ex1}
+%\input{chapters/3-ex2}
+%\input{chapters/4-ex3}
+%\input{chapters/5-conclusao}
+\input{chapters/1-Introducao}
+\input{chapters/2-Revisao-sistematica}
+\input{chapters/3-Fundamentacao}
+\input{chapters/4-Metodologia}
+\input{chapters/5-Consideracoes}
+
+%\input{bkp_chapters/introducao.tex}
+
+% ----------------------------------------------------------
+% ELEMENTOS PÓS-TEXTUAIS
+% ----------------------------------------------------------
+\postextual
+% ----------------------------------------------------------
+
+% ----------------------------------------------------------
+% Referências bibliográficas
+% ----------------------------------------------------------
+\pagestyle{empty}
+\bibliography{chapters/references.bib}
+
+%\addbibresource{chapters/references.bib}  % Specify the path to your bibliography file
+% Your document content goes here
+%\printbibliography  % Print the bibliography
+
+
+\end{document}
+
+
+\end{document}
+% END ----------------------------------------------------------

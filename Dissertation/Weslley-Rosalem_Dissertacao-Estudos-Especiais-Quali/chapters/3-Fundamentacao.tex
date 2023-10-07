@@ -1,0 +1,49 @@
+\chapter{Fundamentação Teórica}
+\label{cap_fundamentacao-teorica}
+
+Nesta seção, será abordado os conceitos e teorias que formam a base deste estudo. O entendimento desses conceitos é fundamental para a compreensão das técnicas e metodologias empregadas neste trabalho. Primeiramente, será discutido o conceito de Inteligência Artificial (IA) e como essa tecnologia tem evoluído ao longo dos anos. Posteriormente, será explicado um subcampo específico da IA, conhecido como \textit{AIOps} (Inteligência Artificial para Operações de TI), que combina IA e análise de dados para melhorar e otimizar as operações de TI. O conhecimento adquirido sobre IA e AIOps será crucial para entender como essas tecnologias podem ser aplicadas em ambientes de TI para melhorar a detecção de anomalias e análise preditiva de séries temporais \cite{russell2016artificial, gardner2017artificial}.
+
+\section{Transformer em Time Series}
+
+Time Series Transformer (TST) é uma adaptação dos Transformer para lidar especificamente com séries temporais \cite{lim2019temporal}. Ele mantém o mecanismo de atenção dos Transformer, permitindo capturar dependências temporais em diferentes escalas de tempo.
+
+Um dos aspectos críticos na utilização de TST é a escolha adequada dos hiperparâmetros, incluindo o número de camadas, a dimensão do modelo, e o número de cabeças de atenção. Esses hiperparâmetros podem ter um impacto significativo no desempenho do modelo e precisam ser ajustados de acordo com a especificidade dos dados e o problema em questão.
+
+Quando aplicado a dados de séries temporais armazenados em Prometheus, o TST pode ser capaz de capturar padrões complexos e dependências temporais nas métricas de desempenho de sistemas de TI. Isso pode permitir a identificação mais precisa de problemas, bem como prever tendências futuras, o que é essencial para otimização e planejamento de recursos em ambientes de TI complexos.
+
+
+
+
+\section{Inteligência Artificial}
+
+A Inteligência Artificial (IA) é um campo de estudo que busca desenvolver máquinas que possam imitar ou simular o comportamento inteligente humano \cite{russell2016artificial}. Isso envolve a capacidade de aprender com experiências, compreender linguagem natural, reconhecer padrões, e tomar decisões de forma autônoma. 
+
+A IA tem suas raízes em diversas disciplinas, incluindo ciência da computação, matemática, psicologia, neurociência, linguística e filosofia. O campo de IA tem evoluído rapidamente nos últimos anos, graças aos avanços em algoritmos, aumento na capacidade de processamento de computadores, e a disponibilidade de grandes volumes de dados \cite{poole2017artificial}.
+
+Uma das subáreas mais proeminentes da IA é o aprendizado de máquina (Machine Learning), que foca em desenvolver algoritmos que possam melhorar seu desempenho e tomar decisões com base nos dados que recebem \cite{mitchell1997machine}. O aprendizado profundo (Deep Learning), que é um subcampo do aprendizado de máquina, tem se mostrado particularmente eficaz em tarefas como reconhecimento de imagem e processamento de linguagem natural, devido à sua capacidade de modelar relações complexas em grandes conjuntos de dados \cite{lecun2015deep}.
+
+\section{AIOps}
+
+AIOps, ou Inteligência Artificial para Operações de TI, é um termo que foi cunhado pelo Gartner e refere-se à aplicação de técnicas de IA em operações de TI \cite{gardner2017artificial}. O objetivo principal de AIOps é automatizar e melhorar aspectos das operações de TI, como monitoramento, gerenciamento, e análise de grandes volumes de dados gerados pelos sistemas e infraestruturas de TI.
+
+AIOps combina big data e aprendizado de máquina para proporcionar análises mais inteligentes e automatizar tarefas que são tradicionalmente manuais e demoradas. Isso inclui detecção de anomalias, correlação de eventos, identificação de causa raiz, e análise preditiva \cite{padhy2018survey}. 
+
+Ao utilizar AIOps, as equipes de operações de TI podem se tornar mais proativas, ao invés de reativas, na abordagem de problemas. Isso significa que, em vez de simplesmente responder a problemas depois que eles ocorrem, AIOps permite que as organizações prevejam problemas e os previnam antes que causem impacto \cite{sill2019aiops}. Em um cenário onde a complexidade dos sistemas de TI está aumentando e a tolerância a tempo de inatividade está diminuindo, AIOps tem o potencial de ser uma ferramenta inestimável para melhorar a eficiência e a confiabilidade das operações de TI.
+
+
+\section{Time Series, Prometheus e Métricas}
+
+Séries temporais, ou Time Series, são conjuntos de dados ordenados no tempo, frequentemente compostos por medições feitas em intervalos sequenciais \cite{shumway2017time}. Exemplos comuns de séries temporais incluem preços de ações, medições meteorológicas, e, no contexto desta pesquisa, métricas de desempenho de sistemas de TI.
+
+No ambiente de TI, séries temporais são extremamente relevantes para o monitoramento e otimização de sistemas. A coleta e análise de métricas como uso de CPU, memória, tráfego de rede e latência, são essenciais para manter a estabilidade e a eficiência de sistemas complexos, particularmente em ambientes com virtualização, containers e Kubernetes.
+
+Prometheus é um sistema de monitoramento e alerta de código aberto, criado em 2012 pela SoundCloud, e é atualmente mantido pela Cloud Native Computing Foundation \cite{brazil2019prometheus}. Ele foi projetado para confiabilidade e escalabilidade, sendo uma das soluções mais populares para coleta de métricas em ambientes de nuvem nativa, em parte devido à sua integração nativa com o Kubernetes. Prometheus permite coletar métricas de sistemas de TI em intervalos de tempo regulares e armazená-los em uma base de dados de séries temporais. Sua popularidade e confiabilidade fazem dele uma escolha adequada para o cenário proposto nesta dissertação.
+
+\section{Deep Learning, RNN e Transformer}
+
+Deep learning é um subcampo do aprendizado de máquina que envolve redes neurais com várias camadas, permitindo modelar relações complexas nos dados \cite{lecun2015deep}. Recurrent Neural Networks (RNN) são uma classe de redes neurais que são particularmente adequadas para lidar com séries temporais e sequências, pois são capazes de manter um estado interno que pode capturar informações sobre etapas anteriores na sequência \cite{elman1990finding}.
+
+No entanto, as RNNs têm limitações, como a dificuldade de capturar dependências de longo alcance em sequências. Transformer foram introduzidos em um artigo seminal de Vaswani et al. em 2017 como uma alternativa às RNNs \cite{vaswani2017attention}. Eles utilizam mecanismos de atenção para ponderar diferentes partes de uma sequência de entrada, permitindo capturar dependências de longo alcance de forma mais eficaz.
+
+Os Transformer mostraram ter um enorme potencial não apenas em processamento de linguagem natural, mas também em análise de séries temporais. Eles podem ser particularmente úteis em ambientes de TI complexos, onde a detecção de padrões sutis ao longo do tempo pode ser crítica para identificar problemas e otimizar o desempenho.
+

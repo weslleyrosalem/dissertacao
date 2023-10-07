@@ -1,0 +1,63 @@
+\chapter{Metodologia}
+
+Esta pesquisa emprega uma abordagem baseada na arquitetura \textit{Transformer} para analisar séries temporais de métricas de desempenho de sistemas de TI coletadas pelo Prometheus. A arquitetura Transformer foi originalmente desenvolvida para processamento de linguagem natural \cite{vaswani2017attention}, mas foi posteriormente adaptada para lidar com séries temporais, demonstrando desempenho superior em várias tarefas, incluindo previsão e detecção de anomalias \cite{lim2019temporal}.
+
+Os dados serão coletados usando Prometheus, que armazena métricas de séries temporais de diversos componentes de um sistema de TI, como uso de CPU, memória, e tráfego de rede. A escolha de utilizar o Prometheus é baseada na sua confiabilidade, eficiência e popularidade em ambientes de nuvem nativa \cite{brazil2019prometheus}.
+
+A metodologia envolve o pré-processamento dos dados coletados para estruturá-los em um formato que possa ser alimentado em um modelo de Transformer. O modelo será então treinado para aprender representações de alto nível das métricas de desempenho e suas dependências temporais. A avaliação do modelo será realizada através de técnicas de validação cruzada e comparação com benchmarks estabelecidos.
+
+\section{Datasets}
+
+Neste trabalho será utilizado um dataset personalizado, coletado de um ambiente real de TI usando Prometheus. Utilizar dados reais oferece uma oportunidade única de avaliar o desempenho do modelo em um cenário prático, o que é crítico para entender a aplicabilidade e as limitações da abordagem proposta.
+
+Este dataset inclui métricas de desempenho típicas, como uso de CPU, uso de memória, latência de rede, e tráfego de rede, ao longo do tempo. Estas métricas são comuns em estudos de séries temporais em ambientes de TI 
+%\cite{calheiros2011workload}.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Feature} & \textbf{Descrição} \\
+        \hline
+        timestamp & Data e hora da medição \\
+        \hline
+        cpu\_usage & Percentual de uso da CPU \\
+       
+
+ \hline
+        memory\_usage & Uso de memória em bytes \\
+        \hline
+        network\_latency & Latência de rede em milissegundos \\
+        \hline
+        network\_traffic & Tráfego de rede em bytes por segundo \\
+        \hline
+    \end{tabular}
+    \caption{Features do dataset escolhido}
+    \label{tab:dataset_features}
+\end{table}
+
+
+\section{Pre-processamento}
+
+O pré-processamento de dados é um passo crítico para garantir que o modelo \textit{Transformer} possa extrair informações significativas das séries temporais coletadas pelo \textit{Prometheus}. Devido à natureza das séries temporais, alguns aspectos específicos precisam ser abordados.
+
+Primeiramente, será necessário lidar com possíveis dados faltantes, pois as séries temporais podem ter lacunas%\cite{che2018recurrent}
+. Será empregado uma estratégia comum, denominada a interpolação, para preencher os dados faltantes, utilizando métodos como interpolação linear ou preenchimento baseado em valores vizinhos.
+
+Em seguida, as séries temporais precisam ser normalizadas. A normalização é essencial para que o modelo \textit{Transformer} treine de forma eficaz, uma vez que a arquitetura depende de atenção autorregressiva e, portanto, é sensível à escala dos dados \cite{vaswani2017attention}. Uma abordagem comumente utilizada é reescalar os dados para ter uma média de zero e um desvio padrão de um. Serão realizados testes utilizando esta técnica nesta etapa.
+
+Além disso, será importante segmentar os dados em janelas temporais. Modelos de séries temporais, incluindo \textit{Transformer}, operam em segmentos de dados chamados janelas. A segmentação adequada é vital para capturar dependências temporais \cite{bai2018empirical}.
+
+Finalmente, a divisão dos dados em conjuntos de treinamento, validação e teste será fundamental para avaliar o desempenho do modelo. Isso será realizado de forma a preservar a ordem temporal dos dados.
+
+\section{Análise Preditiva com Transformer}
+
+Para realizar análise preditiva nas séries temporais, será empregado o uso do modelo \textit{Transformer}. Inicialmente projetados para tarefas de processamento de linguagem natural, os Transformer demonstraram ser eficazes em modelar dependências temporais em séries temporais \cite{lim2019temporal}.
+
+O modelo \textit{Transformer} baseia-se na atenção de auto-regressão, onde o modelo aprende a ponderar diferentes partes da entrada de acordo com sua relevância. Os hiperparâmetros, como o número de camadas de atenção, a dimensionalidade dos vetores de atenção, e o número de "cabeças de atenção", serão ajustados para otimizar o desempenho do modelo \cite{vaswani2017attention}.
+
+Durante o treinamento, o modelo é alimentado com janelas de dados e possui como \textit{output} os  valores futuros previstos. Serão avaliados quais funções de perda possuem maior \textit{fit}  com o problema, alguns exemplos são: Root Mean Square Error (RMSE) e o Mean Absolute Error (MAE).
+
+Neste contexto, é relevante comparar o \textit{RMSE} que atribui mais peso a erros grandes, enquanto o MAE trata todos os erros igualmente. Em cenários em que é importante que o modelo esteja mais próximo dos valores reais e não seja excessivamente influenciado por \textit{outliers}, o MAE poderá ser uma escolha mais adequada \cite{willmott2005advantages}. O MAE estimula o modelo a encontrar valores que são mais representativos da realidade e não tendem em direção à média.
+
+Além disso, a otimização dos hiperparâmetros será realizada por meio de técnicas como \textit{grid search}, e, \textit{random search}, para encontrar a combinação que minimiza o \textit{MAE}  e RMSE no conjunto de validação. 
