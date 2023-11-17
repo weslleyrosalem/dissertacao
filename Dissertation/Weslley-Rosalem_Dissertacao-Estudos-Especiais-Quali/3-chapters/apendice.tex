@@ -1,0 +1,422 @@
+\chapter{transformer-pseudo-codigo.py}
+\label{appendix:a}
+\begin{lstlisting}
+import numpy as np
+import tensorflow as tf
+
+# Função para calcular a atenção com base nas matrizes Q, K, V
+def scaled_dot_product_attention(Q, K, V):
+    # Calcula o produto escalar de Q e K e escala por sqrt(d_k)
+    matmul_qk = tf.matmul(Q, K, transpose_b=True)
+    d_k = tf.cast(tf.shape(K)[-1], tf.float32)
+    scaled_attention_logits = matmul_qk / tf.math.sqrt(d_k)
+
+    # Aplica a função softmax
+    attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)
+
+    # Calcula a saída com os pesos de atenção
+    output = tf.matmul(attention_weights, V)
+    return output, attention_weights
+
+# Implementação de uma única cabeça de atenção
+def single_attention_head(Q, K, V):
+    # Aplica a atenção escalada por produto interno
+    output, _ = scaled_dot_product_attention(Q, K, V)
+    return output
+
+# Implementação da atenção multi-cabeça
+def multi_head_attention(Q, K, V, num_heads):
+    # Divide Q, K, V em várias cabeças
+    Q_heads = tf.split(Q, num_heads, axis=-1)
+    K_heads = tf.split(K, num_heads, axis=-1)
+    V_heads = tf.split(V, num_heads, axis=-1)
+
+    # Calcula a atenção para cada cabeça
+    heads_output = [single_attention_head(q, k, v) for q, k, v in zip(Q_heads, K_heads, V_heads)]
+
+    # Concatena a saída das cabeças
+    concat_attention = tf.concat(heads_output, axis=-1)
+    return concat_attention
+
+# Implementação do codificador
+def encoder_layer(input, num_heads):
+    # Atenção multi-cabeça
+    multi_head_output = multi_head_attention(input, input, input, num_heads)
+
+    # Normalização de camada
+    norm1 = tf.keras.layers.LayerNormalization()(input + multi_head_output)
+
+    # Rede neural feed-forward
+    ff_output = tf.keras.layers.Dense(units=512, activation='relu')(norm1)
+
+    # Normalização de camada
+    norm2 = tf.keras.layers.LayerNormalization()(norm1 + ff_output)
+    return norm2
+
+# Implementação do decodificador
+def decoder_layer(dec_input, enc_output, num_heads):
+    # Atenção multi-cabeça com dec_input como Q, K, V
+    dec_output1 = multi_head_attention(dec_input, dec_input, dec_input, num_heads)
+
+    # Normalização de camada
+    norm1 = tf.keras.layers.LayerNormalization()(dec_input + dec_output1)
+
+    # Atenção multi-cabeça com enc_output como V, e dec_output como Q, K
+    dec_output2 = multi_head_attention(norm1, enc_output, enc_output, num_heads)
+
+    # Normalização de camada
+    norm2 = tf.keras.layers.LayerNormalization()(norm1 + dec_output2)
+
+    # Rede neural feed-forward
+    ff_output = tf.keras.layers.Dense(units=512, activation='relu')(norm2)
+
+    # Normalização de camada
+    norm3 = tf.keras.layers.LayerNormalization()(norm2 + ff_output)
+    return norm3
+
+# Função principal para criar o Transformer
+def Transformer(input, target, num_heads, num_layers):
+    # Codificador
+    enc_output = input
+    for _ in range(num_layers):
+        enc_output = encoder_layer(enc_output, num_heads)
+
+    # Decodificador
+    dec_output = target
+    for _ in range(num_layers):
+        dec_output = decoder_layer(dec_output, enc_output, num_heads)
+
+    return dec_output
+
+\end{lstlisting}
+
+
+
+
+\chapter{transformer-architecture.py}
+\label{appendix:b}
+\begin{lstlisting}
+import tensorflow as tf
+from tensorflow.keras import layers
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+import matplotlib.pyplot as plt
+
+# Load the time series data
+metric_df = pd.read_pickle("../data/ts.pkl")
+
+# Resample the data to 30-minute intervals
+ts = metric_df["value"].astype(float).resample("30min").mean()
+
+# Split the data into train and test sets
+train = ts[:"2021-02-07"]
+test = ts["2021-02-08":]
+
+# Scale the data using a MinMaxScaler
+scaler = MinMaxScaler()
+train_scaled = scaler.fit_transform(train.values.reshape(-1, 1))
+test_scaled = scaler.transform(test.values.reshape(-1, 1))
+
+# Define the number of time steps and features
+n_steps = 3
+n_features = 1
+
+# Create sequences of input data and target values for train set
+X_train, y_train = [], []
+for i in range(n_steps, len(train_scaled)):
+    X_train.append(train_scaled[i-n_steps:i, 0])
+    y_train.append(train_scaled[i, 0])
+X_train, y_train = np.array(X_train), np.array(y_train)
+
+# Reshape the input data to be 3D
+X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], n_features))
+
+# Transformer architecture
+def transformer_encoder(inputs, head_size, num_heads, ff_dim, dropout=0):
+    x = layers.LayerNormalization(epsilon=1e-6)(inputs)
+    x = layers.MultiHeadAttention(key_dim=head_size, num_heads=num_heads, dropout=dropout)(x, x)
+    x = layers.Dropout(dropout)(x)
+    res = x + inputs
+    x = layers.LayerNormalization(epsilon=1e-6)(res)
+    x = layers.Conv1D(filters=ff_dim, kernel_size=1, activation="relu")(x)
+    x = layers.Dropout(dropout)(x)
+    x = layers.Conv1D(filters=inputs.shape[-1], kernel_size=1)(x)
+    return x + res
+
+def build_model(input_shape):
+    inputs = layers.Input(shape=input_shape)
+    x = transformer_encoder(inputs, head_size=256, num_heads=4, ff_dim=4)
+    x = layers.GlobalAveragePooling1D(data_format="channels_first")(x)
+    outputs = layers.Dense(1, activation="relu")(x)
+    return tf.keras.Model(inputs, outputs)
+
+# Build and compile the model
+model = build_model((n_steps, n_features))
+model.compile(loss="mse", optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
+
+# Train the model
+model.fit(X_train, y_train, epochs=10, batch_size=64, verbose=0)
+
+# Create sequences of input data and target values for test set
+X_test, y_test = [], []
+for i in range(n_steps, len(test_scaled)):
+    X_test.append(test_scaled[i-n_steps:i, 0])
+    y_test.append(test_scaled[i, 0])
+X_test, y_test = np.array(X_test), np.array(y_test)
+
+# Reshape the input data to be 3D
+X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], n_features))
+
+# Make predictions for training set
+train_pred = model.predict(X_train)
+train_pred = scaler.inverse_transform(train_pred)
+
+# Make predictions for test
+test_pred = model.predict(X_test)
+test_pred = scaler.inverse_transform(test_pred)
+
+
+# Evaluation metrics for test
+rmse = np.sqrt(mean_squared_error(test.values[n_steps:], test_pred))
+mae = mean_absolute_error(test.values[n_steps:], test_pred)
+
+print(f"Test RMSE: {rmse}")
+print(f"Test MAE: {mae}")
+
+# Evaluation metrics for train set
+train_rmse = np.sqrt(mean_squared_error(train.values[n_steps:], train_pred))
+train_mae = mean_absolute_error(train.values[n_steps:], train_pred)
+
+print(f"Train RMSE: {train_rmse}")
+print(f"Train MAE: {train_mae}")
+
+
+# Plot actual and predicted test values
+plt.subplot(2, 1, 1)
+plt.plot(test.index[n_steps:], test.values[n_steps:], label="Actual Test")
+plt.plot(test.index[n_steps:], test_pred, label="Predicted Test")
+plt.title("Test Data")
+plt.legend()
+
+# Plot actual and predicted train values
+plt.subplot(2, 1, 2)
+plt.plot(train.index[n_steps:], train.values[n_steps:], label="Actual Train")
+plt.plot(train.index[n_steps:], train_pred, label="Predicted Train")
+plt.title("Train Data")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+\end{lstlisting}
+
+
+
+\chapter{Implementação do Modelo}
+\label{appendix:model-implementation}
+\section{model.py}
+\UseRawInputEncoding
+\begin{lstlisting}
+import tensorflow as tf
+from tensorflow.keras import layers, regularizers
+
+# Transformer architecture
+def transformer_encoder(inputs, head_size, num_heads, ff_dim, dropout):
+    x = layers.LayerNormalization(epsilon=1e-6)(inputs)
+    x = layers.MultiHeadAttention(
+        key_dim=head_size, num_heads=num_heads, dropout=dropout
+    )(x, x)
+    x = layers.Dropout(dropout)(x)
+    res = x + inputs
+    x = layers.LayerNormalization(epsilon=1e-6)(res)
+    x = layers.Conv1D(
+        filters=ff_dim,
+        kernel_size=1,
+        activation="relu",
+        kernel_regularizer=regularizers.l2(1),
+    )(x)
+    x = layers.Dropout(dropout)(x)
+    x = layers.Conv1D(
+        filters=inputs.shape[-1],
+        kernel_size=1,
+        kernel_regularizer=regularizers.l2(0.01),
+    )(x)
+    return x + res
+
+def build_model(input_shape, head_size, num_heads, ff_dim, dropout_rate):
+    inputs = layers.Input(shape=input_shape)
+    x = transformer_encoder(inputs, head_size=head_size, num_heads=num_heads, ff_dim=ff_dim, dropout=dropout_rate)
+    x = layers.GlobalAveragePooling1D(data_format="channels_first")(x)
+    x = layers.Dropout(dropout_rate)(x)  # Use the passed dropout_rate here
+    outputs = layers.Dense(
+        1, activation="relu", kernel_regularizer=regularizers.l2(0.01)
+    )(x)
+    return tf.keras.Model(inputs, outputs)
+\end{lstlisting}
+
+
+
+\section{main-random-loop.py}
+\begin{lstlisting}
+import numpy as np
+import tensorflow as tf
+import random
+from sklearn.metrics import mean_absolute_error
+
+from data_loader import load_and_preprocess_data
+from model import build_model
+from train_evaluate_random import create_sequences, train_model, evaluate_model
+
+# Definir o número de iterações para o Random Search
+n_iterations = 10
+
+# Definir o espaço de busca
+param_space = {
+    'n_steps': list(range(10, 100)),
+    'head_size': [64, 126, 256],
+    'num_heads': list(range(1, 8)),
+    'ff_dim': [4, 14, 32, 64],
+    'dropout_rate': [0.0001, 0.0002, 0.0003],
+    'learning_rate': [0.01, 0.05, 0.1],
+    'batch_size': [16, 32, 64],
+    'epochs': list(range(50, 100))
+}
+
+def random_search(param_space, n_iterations, n_repetitions=5):
+    best_mae = float('inf')
+    best_params = None
+
+    for iteration in range(n_iterations):
+        print(f"Iteration {iteration + 1}/{n_iterations}")
+        
+        # Escolher um conjunto aleatório de parâmetros
+        params = {key: random.choice(values) for key, values in param_space.items()}
+        
+        # Inicializar a lista para armazenar os MAEs de cada repetição
+        maes = []
+
+        for rep in range(n_repetitions):
+            print(f"Repetition {rep + 1}/{n_repetitions} for iteration {iteration + 1}")
+
+            # Carregar dados
+            train, test, train_scaled, test_scaled, scaler = load_and_preprocess_data("../data/ts.pkl")
+            
+            # Criar sequências de treino e teste
+            X_train, y_train = create_sequences(train_scaled, params['n_steps'])
+            X_test, y_test = create_sequences(test_scaled, params['n_steps'])
+            
+            # Redimensionar os dados
+            X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
+            X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
+            
+            # Construir e compilar o modelo
+            model = build_model((params['n_steps'], 1), params['head_size'], params['num_heads'], params['ff_dim'], params['dropout_rate'])
+            model.compile(loss="mse", optimizer=tf.keras.optimizers.Adam(learning_rate=params['learning_rate']))
+            
+            # Treinar o modelo
+            model = train_model(model, X_train, y_train, params['batch_size'], params['epochs'])
+            
+            # Avaliar o modelo
+            test_mae = evaluate_model(model, X_train, y_train, X_test, y_test, scaler, params['n_steps'])
+
+            # Adicionar o MAE atual à lista
+            maes.append(test_mae)
+
+        # Calcular a média dos MAEs
+        avg_mae = sum(maes) / len(maes)
+
+        # Verificar se a média do MAE atual é a melhor
+        if avg_mae < best_mae:
+            best_mae = avg_mae
+            best_params = params
+
+    return best_mae, best_params
+
+if __name__ == "__main__":
+    best_mae, best_params = random_search(param_space, n_iterations)
+    print(f"Best MAE: {best_mae}")
+    print("Best parameters:")
+    for param, value in best_params.items():
+        print(f"{param}: {value}")
+
+\end{lstlisting}
+
+\section{data-loader.py}
+\begin{lstlisting}
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+
+def load_and_preprocess_data(filepath):
+    # Load the time series data
+    metric_df = pd.read_pickle(filepath)
+
+    # Resample the data to 30-minute intervals
+    ts = metric_df["value"].astype(float).resample("30min").mean()
+
+    # Split the data into train and test sets
+    train = ts[:"2021-02-07"]
+    test = ts["2021-02-08":]
+
+    # Scale the data using a MinMaxScaler
+    scaler = MinMaxScaler()
+    train_scaled = scaler.fit_transform(train.values.reshape(-1, 1))
+    test_scaled = scaler.transform(test.values.reshape(-1, 1))
+
+    return train, test, train_scaled, test_scaled, scaler
+\end{lstlisting}
+
+\section{train-evaluate-random-loop.py}
+\begin{lstlisting}
+from matplotlib import pyplot as plt
+import numpy as np
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+import mlflow
+from mlflow.keras import log_model
+
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
+def create_sequences(data_scaled, n_steps):
+    X, y = [], []
+    for i in range(n_steps, len(data_scaled)):
+        X.append(data_scaled[i-n_steps:i, 0])
+        y.append(data_scaled[i, 0])
+    return np.array(X), np.array(y)
+
+def train_model(model, X_train, y_train, batch_size, epochs):
+    model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=0)
+    return model
+
+def evaluate_model(model, X_train, y_train, X_test, y_test, scaler, n_steps, iteration, repetition):
+    # Previsões para o conjunto de treino e de teste
+    train_pred = model.predict(X_train)
+    test_pred = model.predict(X_test)
+    
+    # Inverter a transformação de escala
+    train_pred = scaler.inverse_transform(train_pred).flatten()
+    test_pred = scaler.inverse_transform(test_pred).flatten()
+
+    # Ajustar os tamanhos dos vetores y_train e y_test para combinar com as previsões
+    y_train_adjusted = y_train[n_steps:len(train_pred)+n_steps]
+    y_test_adjusted = y_test[n_steps:len(test_pred)+n_steps]
+
+    # Ajustar os tamanhos dos arrays
+    min_length_train = min(len(y_train_adjusted), len(train_pred))
+    y_train_adjusted = y_train_adjusted[:min_length_train]
+    train_pred = train_pred[:min_length_train]
+
+    min_length_test = min(len(y_test_adjusted), len(test_pred))
+    y_test_adjusted = y_test_adjusted[:min_length_test]
+    test_pred = test_pred[:min_length_test]
+
+    # Calcular o MAE para o conjunto de teste
+    test_mae = mean_absolute_error(y_test_adjusted, test_pred)
+
+    # Registrar a métrica no MLflow
+    mlflow.log_metric(f"test_mae_iteration_{iteration}_rep_{repetition}", test_mae)
+
+    return test_mae  # Retorna o MAE do conjunto de teste que será minimizado
+
+\end{lstlisting}

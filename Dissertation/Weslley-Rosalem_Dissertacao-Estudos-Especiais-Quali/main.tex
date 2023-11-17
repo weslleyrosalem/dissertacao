@@ -20,6 +20,7 @@
 	brazil				% o último idioma é o principal do documento
 	]{abntex2}
 
+%test
 
 % Pacotes básicos 
 \usepackage[alf]{abntex2cite}
@@ -53,8 +54,31 @@
 \usepackage{lipsum}
 \usepackage{pdfpages}
 \usepackage{longtable}
+\usepackage{rotating} % para usar o ambiente 'sidewaystable'
 %\usepackage{biblatex}
 %\usepackage[style=numeric]{biblatex}  % Include the biblatex package
+
+
+
+
+% -- Carregando o pacote do bloco de código: 
+\usepackage{listings}
+\lstset{
+    literate={á}{{\'a}}1
+           {ã}{{\~a}}1
+           {ç}{{\c{c}}}1
+           {í}{{\'i}}1
+           {ú}{{\'u}}1,         
+    language=Python,
+    breaklines=true,
+    basicstyle=\ttfamily\small,
+    commentstyle=\color{olive},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+}
+% -- Definindo cores: 
+% -- Definindo um estilo personalizado: 
 
 
 
@@ -72,7 +96,7 @@
 \tipotrabalho{Dissertação de Mestrado Acadêmico}
 % O preambulo deve conter o tipo do trabalho, o objetivo, 
 % o nome da instituição e a área de concentração 
-\preambulo{Trabalho apresentado para disciplina de estudos especiais, parte do  Programa de Pós-Graduação em Ciência da Computação, do Instituto de Biociências, Letras e Ciências Exatas da Universidade Estadual Paulista ``Júlio de Mesquita Filho", Câmpus de Bauru.}
+\preambulo{Dissertação apresentada como parte dos requisitos para obtenção do título de Mestre em Ciência da Computação, junto ao Programa de Pós-Graduação em Ciência da Computação, do Instituto de Biociências, Letras e Ciências Exatas da Universidade Estadual Paulista “Júlio de Mesquita Filho", Câmpus de Bauru.}
 % ---
 
 % Configurações de aparência do PDF final
@@ -130,29 +154,62 @@
 % (o * indica que haverá a ficha bibliográfica)
 \imprimirfolhaderosto*
 
+% Inserir Resumo e Abstract
+\input{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/001-a-resumo}
+\input{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/001-abstract}
+
+% ---
+
+% ---
+% inserir lista de ilustrações
+% ---
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+% ---
+
+% ---
+% inserir lista de tabelas
+% ---
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+% ---
 
 % inserir lista de abreviaturas e siglas
 % ---
 \begin{siglas}
+\item [AI] - \textit{Artificial Intelligence}
 \item[AIOPs] - \textit{Artificial Intelligence for IT Operations}
-\item[ANN] - \textit{Artificial Neural Network}
+\item[CAM] - \textit{Class Activation Mapping }
+\item [CNN] - \textit{Convolutional Neural Network}
+\item[CVAE] - \textit{Conditional Variational Autoencoder}
 \item[CPU] - \textit{Central Processing Unit}
-\item[DBSCAN] - \textit{Density-based spatial clustering of applications with noise}
+\item[DevOps] - Desenvolvimento e Operações de TI
 \item[DP] - \textit{Deep Learning}
-\item[IDS] - \textit{Intrusion Detection System}
+\item[GRU] - \textit{Gated Recurrent Unit}
+\item[HAC] - \textit{Hierarchical Agglomerative Clustering}
+\item[IT] - \textit{Information Techonology}
+\item[K8s] - \textit{Kubernetes}
 \item[LSTM] - \textit{Long short-term memory}
+\item [MAE] - \textit{Mean Absolute Error}
 \item[ML] - \textit{Machine Learning}
 \item[MLOPs] - \textit{Machine Learning Operations}
-\item[NN] - \textit{Neural Network}
+\item [NLP] - \textit{Natural Language Processing}
 \item[NNET] - \textit{Neural Network}
-\item[SMOTE] - \textit{Synthetic Minority Over-sampling Technique}
+\item[KPI] - \textit{Key Performance Indicator}
+\item[RMSE] - \textit{Root Mean Squared Error}
 \item[RNN] - \textit{Recurrent neural network}
-\item[SVM] - \textit{Support Vector Machine}
 \item[TF] - \textit{Transformer}
 \item[TS] - \textit{Time Series}
+\item [TI] - Tecnologias da informação
+\item [TIC] - Tecnologias da informação e comunicação
 \item[TSTF] - \textit{Time Series Transformer}
+
+
 \end{siglas}
 % ---
+
 
 % inserir o sumario
 \pdfbookmark[0]{\contentsname}{toc}
@@ -165,18 +222,17 @@
 \pagestyle{simple}
 
 % ----------------------------------------------------------
-%\input{chapters/1-resumo.tex}
+
 %\input{chapters/2-ex1}
 %\input{chapters/3-ex2}
 %\input{chapters/4-ex3}
 %\input{chapters/5-conclusao}
-\input{chapters/1-Introducao}
-\input{chapters/2-Revisao-sistematica}
-\input{chapters/3-Fundamentacao}
-\input{chapters/4-Metodologia}
-\input{chapters/5-Consideracoes}
+\input{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/1-Introducao}
+\input{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/2-Fundamentacao}
+\input{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/3-Metodologia}
+\input{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/4-Resultados-Preliminares}
+\input{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/5-Conclusao-Parcial}
 
-%\input{bkp_chapters/introducao.tex}
 
 % ----------------------------------------------------------
 % ELEMENTOS PÓS-TEXTUAIS
@@ -188,11 +244,24 @@
 % Referências bibliográficas
 % ----------------------------------------------------------
 \pagestyle{empty}
-\bibliography{chapters/references.bib}
+\bibliography{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/references}
 
 %\addbibresource{chapters/references.bib}  % Specify the path to your bibliography file
 % Your document content goes here
 %\printbibliography  % Print the bibliography
+
+
+% ---
+% Inicia os apêndices
+% ---
+\begin{apendicesenv}
+%
+%% Imprime uma página indicando o início dos apêndices
+\partapendices
+\include{Dissertation/Weslley-Rosalem_Dissertacao-Estudos-Especiais-Quali/3-chapters/apendice}
+%
+\end{apendicesenv}
+
 
 
 \end{document}

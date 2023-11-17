@@ -1,0 +1,183 @@
+\chapter{Resultados Preliminares}\label{Cap_resultados-preliminares}
+Este capítulo oferece uma análise sobre os resultados preliminares alcançados com a implementação inicial do modelo. Esta seção discute as métricas de desempenho e delineia estratégias para futuras otimizações, além de servir como um ponto de referência para avaliar o progresso alcançado até o momento na implementação e avaliação do modelo de séries temporais baseado em \textit{Transformers}. Os resultados preliminares aqui apresentados não são apenas um testemunho do potencial da arquitetura de \textit{Transformers} em aplicações fora do processamento de linguagem natural, mas também fornecem insights sobre as áreas que requerem atenção adicional. Desde a configuração experimental até as métricas de desempenho, cada aspecto é discutido em detalhes para fornecer uma compreensão abrangente do estado atual do projeto. Além disso, a relevância desses resultados em relação ao estado da arte\footnote{O termo "Estado da Arte" refere-se ao mais alto nível de desenvolvimento em um campo ou disciplina, particularmente em pesquisa, tecnologia e aplicações. É frequentemente usado como um ponto de referência para comparar o desempenho ou a qualidade de novas inovações, métodos ou técnicas.} em modelagem de séries temporais é também avaliada, estabelecendo assim um ponto de partida sólido para futuras investigações.
+
+\section{Contextualização e Objetivos}
+O objetivo primordial deste estudo é aplicar a arquitetura de \textit{Transformers} em um contexto não trivial de séries temporais. Tradicionalmente, essa arquitetura tem sido mais associada ao processamento de linguagem natural (\textit{NLP}), mas sua aplicabilidade em domínios diversos como séries temporais é uma área em crescimento na pesquisa. Assim, este trabalho se posiciona na vanguarda desta investigação acadêmica, buscando preencher lacunas existentes na literatura.
+
+\section{Configuração Experimental}
+A primeira iteração do modelo pode ser encontrada no apêndice \ref{appendix:b}, ela foi configurada com uma \textit{learning rate} de \(1 \times 10^{-4}\), um \textit{batch size} de 64 e foi treinada por 10 \textit{epochs}
+. O \textit{Transformer} foi arquitetado com 4 \textit{attention heads} e uma dimensão \textit{feed-forward} de 4. Vale ressaltar que esta foi uma abordagem experimental inicial, e que esta arquitetura apresentou resultados razoavelmente satisfatórios quando comparado a outros modelos clássicos como ARIMA\footnote{(Modelo Autoregressivo Integrado de Médias Móveis): Modelo estatístico para análise de séries temporais, composto por três elementos principais: componente autoregressivo (AR), indicando a relação com observações anteriores; componente de integração (I), representando a diferenciação necessária para estacionarizar a série; e componente de médias móveis (MA), modelando o erro da previsão como uma função de erros anteriores. Expresso como ARIMA(p, d, q), onde p é o número de defasagens no componente AR, d é o grau de diferenciação, e q é o tamanho da janela no componente MA.} e SARIMA\footnote{Modelo Autoregressivo Integrado de Médias Móveis Sazonais): Extensão do ARIMA para séries com sazonalidade. Inclui componentes autoregressivos, de integração e de médias móveis, tanto para a tendência não sazonal (p, d, q) quanto para a sazonal (P, D, Q).},  otimizações em relação a arquitetura foram realizadas através do método \textit{random search}.
+
+\section{Resultados obtidos após otimização}
+A escolha e a afinação dos hiperparâmetros desempenham um papel crucial na eficácia dos modelos de aprendizado de máquina, especialmente em arquiteturas complexas como o \textit{Transformer}. Neste estudo, diversos hiperparâmetros foram cuidadosamente selecionados e ajustados para otimizar o desempenho do modelo nas séries temporais do \textit{Prometheus}.
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{longtable}
+% Note: It may be necessary to compile the document several times to get a multi-page table to line up properly
+\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|}
+\caption{Detalhes dos resultados obtidos através de otimização.}
+\label{tab:random-search}\\
+\hline
+Dur. & \begin{tabular}[c]{@{}c@{}}Batch\\ Size\end{tabular} & \begin{tabular}[c]{@{}c@{}}Dropout\\ Rate\end{tabular} & Epoch & \begin{tabular}[c]{@{}c@{}}ff\\ dim\end{tabular} & \begin{tabular}[c]{@{}c@{}}Head\\ size\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lear-\\ ning\\ Rate\end{tabular} & Step & Head & MAE & RMSE \\ \hline
+\endfirsthead
+%
+\multicolumn{11}{c}%
+{{\bfseries Tabela \thetable\ - Continuação da Página Anterior}} \\
+\hline
+Dur. & \begin{tabular}[c]{@{}c@{}}Batch\\ Size\end{tabular} & \begin{tabular}[c]{@{}c@{}}Dropout\\ Rate\end{tabular} & Epoch & \begin{tabular}[c]{@{}c@{}}ff\\ dim\end{tabular} & \begin{tabular}[c]{@{}c@{}}Head\\ size\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lear-\\ ning\\ Rate\end{tabular} & Step & Head & MAE & RMSE \\ \hline
+\endhead
+%
+3.5s & 16 & 0.0001 & 100 & 8 & 128 & 0.1 & 10 & 6 & 7.1E+08 & 7.1E+08 \\ \hline
+3.7s & 64 & 0.0001 & 50 & 9 & 256 & 0.02 & 12 & 8 & 7.1E+08 & 7.1E+08 \\ \hline
+4.0s & 120 & 0 & 100 & 4 & 128 & 0.01 & 16 & 5 & 7.1E+08 & 7.1E+08 \\ \hline
+3.9s & 32 & 0.0001 & 200 & 16 & 128 & 0.05 & 18 & 20 & 7.1E+08 & 7.1E+08 \\ \hline
+3.5s & 12 & 0.0001 & 100 & 4 & 256 & 0.01 & 20 & 6 & 7.1E+08 & 7.1E+08 \\ \hline
+3.9s & 12 & 0.0001 & 100 & 12 & 128 & 0.02 & 22 & 60 & 7.1E+08 & 7.1E+08 \\ \hline
+3.9s & 1 & 0.0001 & 50 & 5 & 128 & 0.01 & 24 & 7 & 7.1E+08 & 7.1E+08 \\ \hline
+3.4s & 64 & 0.0001 & 10 & 9 & 256 & 0.02 & 20 & 8 & 7.4E+08 & 7.4E+08 \\ \hline
+3.5s & 64 & 0.0001 & 20 & 4 & 64 & 0.05 & 8 & 4 & 7.1E+08 & 7.1E+08 \\ \hline
+3.5s & 512 & 0.0001 & 100 & 8 & 128 & 0.01 & 3 & 10 & 7.1E+08 & 7.1E+08 \\ \hline
+3.5s & 16 & 0.0001 & 10 & 2 & 256 & 0.1 & 5 & 5 & 7.1E+08 & 7.1E+08 \\ \hline
+3.7s & 32 & 0.001 & 10 & 2 & 512 & 0.1 & 2 & 5 & 7.1E+08 & 7.1E+08 \\ \hline
+3.4s & 64 & 0.0001 & 50 & 4 & 256 & 0.02 & 4 & 4 & 7.1E+08 & 7.1E+08 \\ \hline
+3.5s & 16 & 0.01 & 10 & 2 & 128 & 0.1 & 6 & 5 & 7.1E+08 & 7.1E+08 \\ \hline
+3.4s & 64 & 0.0001 & 10 & 2 & 256 & 0.01 & 3 & 5 & 7.2E+08 & 7.2E+08 \\ \hline
+3.5s & 64 & 0.1 & 10 & 4 & 256 & 0.001 & 4 & 4 & 7.2E+08 & 7.2E+08 \\ \hline
+3.5s & 16 & 0.0001 & 100 & 8 & 128 & 0.01 & 10 & 6 & 8.3E+08 & 8.3E+08 \\ \hline
+3.6s & 16 & 0.0001 & 100 & 80 & 128 & 0.01 & 10 & 10 & 8.3E+08 & 8.3E+08 \\ \hline
+3.4s & 120 & 0.0001 & 100 & 4 & 128 & 0.01 & 12 & 5 & 8.3E+08 & 8.4E+08 \\ \hline
+3.5s & 32 & 0.0001 & 100 & 4 & 64 & 0.01 & 12 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.4s & 16 & 0.0001 & 100 & 80 & 128 & 0.01 & 10 & 6 & 8.4E+08 & 8.4E+08 \\ \hline
+3.4s & 120 & 0.0001 & 200 & 4 & 128 & 0.01 & 12 & 5 & 8.4E+08 & 8.4E+08 \\ \hline
+3.6s & 32 & 0.0001 & 100 & 12 & 64 & 0.01 & 12 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 64 & 0.0001 & 50 & 4 & 256 & 0.02 & 12 & 4 & 8.4E+08 & 8.5E+08 \\ \hline
+3.8s & 32 & 0.0001 & 100 & 16 & 5 & 0.05 & 20 & 4 & 8.1E+08 & 8.2E+08 \\ \hline
+3.7s & 32 & 0.0001 & 100 & 12 & 64 & 0.01 & 12 & 16 & 8.5E+08 & 8.5E+08 \\ \hline
+3.5s & 16 & 0.0001 & 100 & 80 & 512 & 0.01 & 10 & 10 & 8.4E+08 & 8.4E+08 \\ \hline
+3.9s & 64 & 0.1 & 10 & 4 & 256 & 0.001 & 4 & 8 & 7.5E+08 & 7.5E+08 \\ \hline
+3.5s & 32 & 0.0001 & 100 & 4 & 64 & 0.01 & 12 & 16 & 8.5E+08 & 8.5E+08 \\ \hline
+3.7s & 180 & 0.0001 & 100 & 5 & 256 & 0.01 & 10 & 7 & 8.5E+08 & 8.5E+08 \\ \hline
+3.5s & 12 & 0.0001 & 50 & 12 & 256 & 0.02 & 12 & 12 & 8.5E+08 & 8.5E+08 \\ \hline
+3.6s & 64 & 0.0001 & 100 & 8 & 64 & 0.02 & 16 & 6 & 8.3E+08 & 8.3E+08 \\ \hline
+3.5s & 64 & 0.1 & 20 & 5 & 256 & 0.002 & 3 & 4 & 7.6E+08 & 7.6E+08 \\ \hline
+3.6s & 120 & 0.0001 & 100 & 6 & 128 & 0.01 & 16 & 7 & 8.4E+08 & 8.4E+08 \\ \hline
+3.9s & 180 & 0.0001 & 100 & 4 & 256 & 0.01 & 16 & 6 & 8.4E+08 & 8.4E+08 \\ \hline
+3.7s & 64 & 0.0001 & 100 & 4 & 128 & 0.01 & 16 & 6 & 8.4E+08 & 8.4E+08 \\ \hline
+3.6s & 64 & 0.0001 & 100 & 8 & 128 & 0.02 & 16 & 60 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 120 & 0.0001 & 100 & 4 & 256 & 0.01 & 16 & 5 & 8.3E+08 & 8.4E+08 \\ \hline
+4.0s & 120 & 0.0001 & 100 & 4 & 128 & 0.01 & 16 & 5 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 120 & 0.0001 & 100 & 6 & 128 & 0.01 & 16 & 6 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 64 & 0.0001 & 100 & 4 & 256 & 0.01 & 16 & 6 & 8.4E+08 & 8.5E+08 \\ \hline
+3.4s & 120 & 0.0001 & 100 & 5 & 128 & 0.01 & 16 & 5 & 8.4E+08 & 8.4E+08 \\ \hline
+3.4s & 36 & 0.0001 & 100 & 4 & 256 & 0.01 & 16 & 6 & 8.4E+08 & 8.5E+08 \\ \hline
+3.4s & 256 & 0.0001 & 100 & 6 & 128 & 0.01 & 16 & 7 & 8.5E+08 & 8.5E+08 \\ \hline
+3.6s & 32 & 0.0001 & 100 & 16 & 64 & 0.01 & 16 & 16 & 8.5E+08 & 8.5E+08 \\ \hline
+3.8s & 180 & 0.0001 & 100 & 4 & 128 & 0.01 & 16 & 6 & 8.5E+08 & 8.5E+08 \\ \hline
+3.6s & 120 & 0.0001 & 100 & 6 & 128 & 0.01 & 16 & 4 & 8.5E+08 & 8.5E+08 \\ \hline
+3.7s & 120 & 0.0001 & 100 & 4 & 256 & 0.01 & 17 & 5 & 8.4E+08 & 8.4E+08 \\ \hline
+3.7s & 32 & 0.0001 & 100 & 9 & 256 & 0.01 & 20 & 6 & 8.3E+08 & 8.3E+08 \\ \hline
+3.9s & 250 & 0.0001 & 100 & 5 & 256 & 0.01 & 18 & 7 & 8.2E+08 & 8.2E+08 \\ \hline
+3.5s & 64 & 0.1 & 10 & 4 & 256 & 0.005 & 3 & 4 & 7.8E+08 & 7.8E+08 \\ \hline
+3.8s & 180 & 0.0001 & 50 & 3 & 128 & 0.01 & 18 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.8s & 180 & 0.0001 & 50 & 3 & 256 & 0.01 & 18 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 64 & 0.0001 & 200 & 16 & 128 & 0.01 & 18 & 20 & 8.3E+08 & 8.4E+08 \\ \hline
+3.5s & 180 & 0.0001 & 100 & 5 & 257 & 0.01 & 18 & 7 & 8.4E+08 & 8.4E+08 \\ \hline
+3.4s & 64 & 0.0001 & 50 & 9 & 256 & 0.02 & 20 & 8 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 64 & 0.1 & 10 & 4 & 256 & 0.001 & 3 & 4 & 7.8E+08 & 7.8E+08 \\ \hline
+3.9s & 180 & 0.0001 & 100 & 1 & 256 & 0.01 & 18 & 1 & 8.3E+08 & 8.3E+08 \\ \hline
+3.5s & 64 & 0.1 & 20 & 4 & 256 & 0.005 & 3 & 6 & 7.8E+08 & 7.8E+08 \\ \hline
+3.5s & 64 & 0.0001 & 50 & 8 & 256 & 0.02 & 20 & 6 & 8.4E+08 & 8.5E+08 \\ \hline
+3.5s & 64 & 0.0001 & 100 & 6 & 256 & 0.01 & 20 & 6 & 8.5E+08 & 8.5E+08 \\ \hline
+3.4s & 64 & 0.0001 & 10 & 2 & 256 & 0.03 & 5 & 5 & 7.8E+08 & 7.9E+08 \\ \hline
+3.6s & 64 & 0.0001 & 50 & 6 & 256 & 0.02 & 20 & 6 & 8.5E+08 & 8.5E+08 \\ \hline
+3.8s & 12 & 0.0001 & 100 & 9 & 256 & 0.01 & 20 & 6 & 8.5E+08 & 8.5E+08 \\ \hline
+4.0s & 16 & 0.0001 & 100 & 80 & 512 & 0.01 & 20 & 10 & 8.6E+08 & 8.6E+08 \\ \hline
+3.5s & 16 & 0.0001 & 10 & 2 & 256 & 0.01 & 5 & 5 & 8.0E+08 & 8.0E+08 \\ \hline
+3.4s & 60 & 0.0001 & 50 & 5 & 128 & 0.025 & 24 & 7 & 8.4E+08 & 8.4E+08 \\ \hline
+3.8s & 240 & 0.0001 & 100 & 5 & 128 & 0.01 & 24 & 7 & 8.5E+08 & 8.5E+08 \\ \hline
+3.9s & 60 & 0.0001 & 50 & 5 & 128 & 0.01 & 24 & 7 & 8.5E+08 & 8.5E+08 \\ \hline
+3.5s & 64 & 0.0001 & 10 & 2 & 256 & 0.03 & 3 & 5 & 8.1E+08 & 8.1E+08 \\ \hline
+3.5s & 64 & 0.0001 & 100 & 5 & 128 & 0.03 & 24 & 7 & 8.5E+08 & 8.5E+08 \\ \hline
+3.9s & 64 & 0.0001 & 100 & 4 & 256 & 0.001 & 3 & 4 & 8.1E+08 & 8.1E+08 \\ \hline
+4.3s & 64 & 0.0001 & 10 & 4 & 256 & 0.001 & 3 & 4 & 8.2E+08 & 8.2E+08 \\ \hline
+3.4s & 64 & 0.0001 & 20 & 4 & 256 & 0.05 & 4 & 4 & 8.1E+08 & 8.2E+08 \\ \hline
+3.4s & 64 & 0.0001 & 10 & 2 & 256 & 0.01 & 5 & 5 & 8.2E+08 & 8.2E+08 \\ \hline
+3.4s & 64 & 1E-05 & 10 & 2 & 256 & 0.01 & 5 & 5 & 8.3E+08 & 8.3E+08 \\ \hline
+3.5s & 64 & 0.0001 & 20 & 4 & 256 & 0.02 & 4 & 4 & 8.2E+08 & 8.2E+08 \\ \hline
+3.4s & 64 & 0.1 & 20 & 4 & 256 & 0.005 & 3 & 4 & 8.3E+08 & 8.3E+08 \\ \hline
+4.3s & 64 & 0.12 & 30 & 4 & 256 & 0.01 & 3 & 5 & 8.3E+08 & 8.3E+08 \\ \hline
+3.5s & 32 & 0.0001 & 100 & 4 & 64 & 0.01 & 3 & 4 & 8.3E+08 & 8.3E+08 \\ \hline
+3.6s & 64 & 0.0001 & 100 & 4 & 256 & 0.01 & 3 & 4 & 8.3E+08 & 8.3E+08 \\ \hline
+3.4s & 16 & 0.0001 & 100 & 4 & 256 & 0.01 & 3 & 4 & 8.3E+08 & 8.3E+08 \\ \hline
+4.0s & 16 & 0.0001 & 100 & 8 & 128 & 0.01 & 3 & 10 & 8.3E+08 & 8.3E+08 \\ \hline
+3.5s & 64 & 0.0001 & 20 & 8 & 64 & 0.05 & 8 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.4s & 16 & 0.0001 & 10 & 2 & 128 & 0.01 & 6 & 6 & 8.3E+08 & 8.3E+08 \\ \hline
+3.4s & 16 & 1E-05 & 10 & 2 & 256 & 0.01 & 5 & 5 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 64 & 0.12274 & 20 & 4 & 128 & 0.01 & 2 & 3 & 8.4E+08 & 8.4E+08 \\ \hline
+3.6s & 16 & 0.0001 & 100 & 16 & 128 & 0.01 & 3 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.8s & 16 & 0.0001 & 100 & 4 & 128 & 0.01 & 3 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.6s & 64 & 0.2 & 30 & 4 & 256 & 0.01 & 3 & 5 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 64 & 0.0001 & 10 & 2 & 256 & 0.04 & 5 & 5 & 8.4E+08 & 8.4E+08 \\ \hline
+3.6s & 16 & 0.0001 & 100 & 4 & 64 & 0.01 & 3 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.5s & 16 & 0.0001 & 10 & 4 & 128 & 0.01 & 6 & 6 & 8.3E+08 & 8.3E+08 \\ \hline
+3.5s & 64 & 0.0001 & 20 & 4 & 256 & 0.03 & 4 & 4 & 8.4E+08 & 8.4E+08 \\ \hline
+3.4s & 16 & 0.0001 & 10 & 2 & 256 & 0.01 & 5 & 6 & 8.4E+08 & 8.4E+08 \\ \hline
+3.6s & 16 & 0.0001 & 100 & 4 & 128 & 0.01 & 3 & 16 & 8.4E+08 & 8.4E+08 \\ \hline
+3.4s & 16 & 0.0001 & 10 & 8 & 128 & 0.01 & 6 & 6 & 8.4E+08 & 8.4E+08 \\ \hline
+\end{longtable}
+
+
+Após uma ampla busca na combinação de melhores parâmetros para \textit{fine-tuning} do modelo, a seleção criteriosa e a iteração destes hiperparâmetros, resultaram em uma melhora considerável na capacidade de inferir tendências. 
+
+Um aspecto chave na configuração do \textit{Transformer} é o tamanho do \textit{batch}. Observou-se que um tamanho de \textit{batch} menor favorece um aprendizado mais estável, embora aumente o tempo de treinamento. Por outro lado, um \textit{batch} maior acelera o treinamento, mas pode levar a uma convergência prematura para mínimos locais, impactando negativamente a capacidade de generalização do modelo.
+
+A taxa de aprendizado é outro hiperparâmetro crítico. Uma taxa de aprendizado muito alta pode fazer com que o modelo não convirja, enquanto uma muito baixa pode resultar em um processo de treinamento excessivamente lento. A estratégia de \textit{learning rate decay}, onde a taxa de aprendizado diminui gradualmente ao longo do treinamento, mostrou-se eficaz para balancear esses extremos.
+
+O número de camadas e cabeças de atenção no \textit{Transformer} também foi objeto de experimentação. Um maior número de camadas aumenta a capacidade do modelo de aprender representações complexas, mas também aumenta o risco de sobreajuste. Da mesma forma, mais cabeças de atenção permitem que o modelo atenda a diferentes aspectos das séries temporais simultaneamente, embora com um custo computacional maior.
+
+Finalmente, a regularização, através de técnicas como \textit{dropout}, provou ser essencial para prevenir o sobreajuste, especialmente dado o tamanho limitado do conjunto de dados disponível. Um equilíbrio cuidadoso foi necessário para garantir que o modelo retivesse sua capacidade preditiva sem memorizar os dados de treinamento.
+
+\begin{itemize}
+\item \textbf{\textit{n\_repeats}}: A execução do modelo em ciclos distintos para cada configuração de hiperparâmetros assegurou a robustez dos resultados. Esse rigor na repetição foi crucial para estabelecer a confiabilidade das métricas de desempenho observadas.
+
+\item \textbf{\textit{n\_steps}}: A escolha de observar 16 passos temporais anteriores em cada ponto de previsão proporcionou ao modelo um contexto histórico significativo, equilibrando de forma eficiente a complexidade e a profundidade de análise.
+
+\item \textbf{\textit{n\_features}}: Com uma única característica mensurada em cada passo temporal, o modelo manteve um foco unidimensional, concentrando-se exclusivamente na variável de consumo de memória.
+
+\item \textbf{\textit{head\_size}}: Um \textit{head\_size} de 128 foi estipulado para as cabeças de atenção do \textit{Transformer}, refletindo uma ponderação entre a captura de nuances nos dados e a contenção da complexidade do modelo.
+
+\item \textbf{\textit{num\_heads}}: Cinco cabeças de atenção permitiram ao modelo processar diversas facetas dos dados em paralelo, uma estratégia que mostrou-se promissora para aprimorar a precisão das previsões.
+
+\item \textbf{\textit{ff\_dim}}: A dimensão \textit{feed-forward}, definida em 4, forneceu uma arquitetura concisa, ainda que competente, para as transformações internas, favorecendo a agilidade no aprendizado.
+
+\item \textbf{\textit{dropout\_rate}}: A taxa de \textit{dropout} escolhida, próxima ao zero, sugere uma intenção de maximizar a retenção de informações durante o treinamento, um indicativo de confiança na representatividade dos dados disponíveis.
+
+\item \textbf{\textit{learning\_rate}}: Uma taxa de aprendizado de 0.01 foi criteriosamente selecionada, buscando um equilíbrio entre a eficiência da convergência e a granularidade do ajuste.
+
+\item \textbf{\textit{batch\_size}}: O tamanho do lote definido em 120 exemplos refletiu a busca por uma otimização computacional, sem sacrificar a integridade do gradiente estimado.
+
+\item \textbf{\textit{epochs}}: A deliberação por 100 épocas de treinamento evidenciou um comprometimento em permitir que o modelo explorasse a fundo os padrões dos dados, mantendo-se vigilante contra o \textit{overfitting}\footnote{\textit{Overfitting} acontece quando um modelo de aprendizado de máquina aprende o "ruído" nos dados de treinamento, em vez da relação subjacente. Como resultado, ele se apresenta bem no conjunto de treinamento, mas mal em dados não vistos ou no conjunto de teste. \textit{Overfitting} é frequentemente o resultado de um modelo excessivamente complexo ou de treinamento excessivo nos dados de treinamento.}.
+
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+     \caption{Gráfico contendo o desempenho do modelo em relação ao conjunto de dados}
+    \includegraphics[width=0.5\linewidth]{plot.png}
+    \label{fig:enter-label}
+\end{figure}
+
+  O gráfico acima mostra os valores reais (em azul) e as previsões do modelo (em laranja) mostram um alinhamento próximo, com oscilações correspondentes entre os picos e vales. A escala do eixo y é da ordem de \(10^8\), variando aproximadamente entre 7.5 e 9.5 \( \times 10^8 \) bytes.
+  
+  Os dados de treino exibem uma variação significativa e ruído. As previsões tendem a suavizar estas flutuações, seguindo a tendência central dos dados reais. A escala é semelhante à do gráfico de teste, mas os valores abrangem uma gama mais ampla, de cerca de 0.7 a 1.0 \( \times 10^9 \) bytes.
+
+A partir da imagem acima, podemos observar que o modelo tem um ajuste relativamente bom aos dados de teste, com as previsões seguindo a tendência geral dos dados reais. No entanto, para os dados de treino, o modelo parece ter um desempenho pior, com as previsões apresentando um padrão mais ruidoso e menos alinhado com os dados reais.
+
+O modelo demonstra uma capacidade notável de prever a tendência dos dados de teste, indicando um aprendizado efetivo dos padrões durante a fase de treinamento. A correspondência entre as previsões e os dados reais sugere uma generalização adequada do modelo para o período de teste. Porém, as previsões para o conjunto de treino apresentam uma discrepância maior em relação aos valores reais.
+
+À medida que se aproxima da conclusão desta investigação, torna-se evidente que a aplicação da arquitetura de \textit{Transformers} em séries temporais representa um campo fértil para futuras explorações e otimizações. Embora os resultados obtidos até agora sejam encorajadores, eles também apontam para várias áreas onde melhorias incrementais ou mesmo inovações podem ser realizadas. 
+
+\begin{comment}
+A complexidade do modelo pode será experimentando com diferentes números de \textit{encoder layers}\footnote{\textit{Encoder Layers} são camadas em uma rede neural que são responsáveis por transformar a entrada em uma representação de espaço latente. Eles são comuns em arquiteturas como \textit{autoencoders} e \textit{Transformers}.} e tamanhos de \textit{attention heads}\footnote{\textit{Attention Heads} são múltiplas instâncias do mecanismo de atenção em um modelo \textit{Transformer}. Eles permitem que o modelo se concentre em diferentes partes da entrada simultaneamente, melhorando a capacidade do modelo de aprender dependências complexas.} . O objetivo é encontrar o ponto ideal entre \textit{underfitting}\footnote{\textit{Underfitting} ocorre quando um modelo de aprendizado de máquina é muito simples para capturar a estrutura subjacente dos dados. Isso resulta em um desempenho ruim tanto no conjunto de treinamento quanto no conjunto de testes. \textit{Underfitting} é frequentemente o resultado de um modelo excessivamente simplista ou de um treinamento inadequado.} e \textit{overfitting}. O uso de \textit{cross-validation}\footnote{\textit{Cross-validation} é uma técnica estatística usada para avaliar a habilidade de um modelo em generalizar para um conjunto de dados independente. Envolve dividir o conjunto de dados original em um conjunto de treinamento e um conjunto de testes. O modelo é treinado no conjunto de treinamento e testado no conjunto de testes, e esse processo é repetido várias vezes com diferentes divisões dos dados. Isso ajuda a fornecer uma estimativa mais robusta do desempenho do modelo.} oferece uma avaliação mais robusta do modelo. Este método irá ajudar a garantir que o modelo se generalize bem para dados não vistos.
+\end{comment}
