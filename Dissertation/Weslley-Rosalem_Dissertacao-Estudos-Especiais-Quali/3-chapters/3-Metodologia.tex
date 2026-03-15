@@ -1,0 +1,80 @@
+\chapter{Metodologia} \label{Cap_metodologia}
+
+Esta pesquisa adota uma metodologia sofisticada, utilizando a arquitetura \textit{Transformer} para a análise meticulosa de séries temporais, especificamente métricas de desempenho de sistemas de TI, coletadas através do sistema \textit{Prometheus}. Originalmente concebida para tarefas de processamento de linguagem natural, a arquitetura \textit{Transformer} foi adaptada com sucesso para séries temporais, exibindo uma capacidade notável em diversas tarefas, incluindo previsão precisa e detecção de anomalias complexas.
+
+O \textit{Prometheus} será utilizado para a coleta de dados, uma escolha motivada pela sua robustez, eficiência e adoção generalizada em ambientes de nuvem nativa. Este sistema é capaz de armazenar métricas de séries temporais de vários componentes de um sistema de TI, incluindo, mas não se limitando a, uso de CPU, memória, velocidade de escrita e leitura em disco, quantidade de acessos simultâneo, velocidade no tempo de resposta, e tráfego de rede.
+
+A metodologia empregada compreende várias etapas críticas. Inicialmente, os dados coletados passarão por um pré-processamento rigoroso para convertê-los em um formato compatível para serem introduzidos no modelo \textit{Transformer}. Posteriormente, o modelo será treinado com o objetivo de aprender representações profundas e abstratas das métricas de desempenho, juntamente com suas dependências temporais intrínsecas. A eficácia do modelo será avaliada meticulosamente através de técnicas de validação cruzada, juntamente com uma comparação detalhada com \textit{benchmarks} estabelecidos.
+
+\section{Conjunto de Dados}
+
+O conjunto de dados utilizado nesta pesquisa é único, composto por dados coletados de um ambiente de TI real, utilizando o \textit{Prometheus}. A decisão de empregar dados reais é instrumental para avaliar a eficácia do modelo em condições autênticas, uma etapa crucial para compreender tanto a aplicabilidade quanto ás possíveis limitações da abordagem proposta. 
+
+Este \textit{dataset}\footnote{Um \textit{dataset}, ou conjunto de dados, é uma coleção de dados geralmente apresentada em forma tabular, onde cada linha representa uma observação ou instância, e cada coluna representa uma variável, característica ou atributo dessas observações. Os \textit{datasets} são fundamentais em diversas áreas como ciência da computação, estatística, aprendizado de máquina, e análise de dados, fornecendo a base sobre a qual análises são realizadas e decisões são tomadas.} específico inclui dados históricos derivados de um servidor \textit{web}, com métricas críticas relacionadas ao uso e consumo de recursos, como memória, CPU, disco e rede, todas coletadas em tempo real e meticulosamente armazenadas em formato de série temporal. Todas monitoradas ao longo de um período de trinta dias dias. Essas métricas são frequentemente empregadas em estudos de séries temporais em contextos de TI, devido à sua relevância direta e impacto no desempenho geral do sistema. Mais detalhes sobre este conjunto de dados, pode ser obtido através do repositório no \textit{\href{https://github.com/weslleyrosalem/dissertacao/tree/main/Experiments/data}{Github}}.
+
+\begin{table}[h!]
+    \centering
+    \caption{Características do conjunto de dados escolhido}
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Feature} & \textbf{Descrição} \\
+        \hline
+        timestamp & Data e hora da medição \\
+        \hline
+        cpu\_usage & Percentual de uso da CPU \\
+        \hline
+        memory\_usage & Uso de memória em bytes \\
+        \hline
+        network\_latency & Latência de rede em milissegundos \\
+        \hline
+        network\_traffic & Tráfego de rede em bits por segundo \\
+        \hline
+    \end{tabular}
+    \label{tab:dataset_features}
+\end{table}
+
+
+\section{Carregamento e Pré-processamento de Dados de Séries Temporais}
+
+A fase de carregamento e pré-processamento de dados  é crítica e precede a modelagem, essencial para garantir que o modelo \textit{Transformer} possa interpretar e aprender efetivamente a partir das séries temporais obtidas via \textit{Prometheus}. As séries temporais apresentam desafios únicos devido à sua natureza, e vários aspectos cruciais devem ser meticulosamente abordados durante o pré-processamento.
+
+Além disso, as séries temporais coletadas precisarão ser normalizadas. A normalização é um processo que ajusta os valores medidos em diferentes escalas para uma noção comum, e é vital para o treinamento eficiente do modelo \textit{Transformer}. Isso se deve ao fato de que a arquitetura \textit{Transformer} emprega mecanismos de atenção autorregressiva, que são altamente sensíveis às variações na escala dos dados de entrada. Comumente, os dados são reescalados para ter uma média de zero e um desvio padrão de um, uma técnica conhecida como padronização, que será explorada durante esta fase.
+
+A segmentação dos dados em janelas temporais é outra etapa crucial no pré-processamento. Modelos de séries temporais, incluindo o \textit{Transformer}, operam sobre segmentos ou janelas de dados. A segmentação adequada é essencial para capturar as dependências temporais inerentes aos dados, permitindo que o modelo aprenda e modele efetivamente as relações temporais subjacentes.
+
+Por fim, a divisão dos dados em conjuntos distintos de treinamento e teste é fundamental. Esta divisão permite que o modelo seja treinado, validado e testado em diferentes subconjuntos de dados, garantindo uma avaliação robusta e imparcial do seu desempenho. Importante ressaltar que essa divisão será realizada de forma a preservar a integridade e a ordem temporal dos dados, garantindo que o modelo seja exposto a uma representação autêntica das relações temporais nos dados, todos detalhes estão descritos nas subseções a seguir:
+
+\subsection{Carregamento de Dados}
+
+A inicialização do processo de análise de dados é realizada através do carregamento dos mesmos. Neste estudo, a função \textit{read\_pickle} do pacote \textit{pandas} foi empregada para carregar dados de séries temporais armazenados em formato de serialização (\textit{Python pickle}). Esta metodologia é eficiente para a recuperação de dados complexos, mantendo a integridade e a estrutura original. Os dados são, então, carregados em uma estrutura \textit{DataFrame}, facilitando a manipulação e análise subsequente.
+
+\subsection{Pré-processamento de Dados}
+
+O pré-processamento de dados de séries temporais é fundamental para garantir a precisão nas análises subsequentes. As etapas de pré-processamento neste estudo incluem:
+
+\subsubsection{Reamostragem Temporal}
+Utiliza-se a função \textit{resample} do \textit{pandas} para a reamostragem dos dados em intervalos de 30 minutos. Esta abordagem padroniza a frequência dos dados, compensando possíveis coletas em intervalos irregulares. A média dos valores em cada intervalo de 30 minutos é calculada, resultando em uma representação mais consistente da série temporal.
+
+\subsubsection{Divisão em Conjuntos de Treino e Teste}
+Os dados são divididos em conjuntos de treino e teste, respeitando a ordem cronológica para manter as dependências temporais. Os dados anteriores a "2021-02-07" são alocados como conjunto de treino, enquanto os dados a partir de "2021-02-08" constituem o conjunto de teste.
+
+\subsubsection{Normalização dos Dados}
+A normalização é implementada utilizando o \textit{MinMaxScaler} do \textit{scikit-learn}, escalando os dados para um intervalo entre 0 e 1. O escalador é ajustado ao conjunto de treino para aprender os parâmetros de escala e, em seguida, aplicado tanto ao conjunto de treinos quanto ao de testes.
+
+Estas etapas são cruciais para assegurar a qualidade e a consistência dos dados, permitindo análises precisas e a aplicação efetiva de modelos de aprendizado de máquina em séries temporais.
+
+
+\section{Estrutura do modelo}
+A seguir é documentado os detalhes da estrutura do modelo proposto, e como a arquitetura \textit{Transformer} está sendo empregada para trabalhar com dados de série temporal, seu algoritmo pode ser encontrado tanto no apêndice \ref{appendix:model-implementation} quanto no \href{https://github.com/weslleyrosalem/dissertacao}{\textit{Github}}.
+
+\subsection{Construção do Modelo}
+A arquitetura do modelo é baseada no \textit{Transformer}, construído utilizando a função \textit{build\_model} do módulo \textit{model}. Esta função configura uma rede de atenção multi-cabeça (\textit{MultiHeadAttention}), seguida por camadas de normalização (\textit{LayerNormalization}) e convolucionais 1D (\textit{Conv1D}) para processar sequências temporais. Os hiperparâmetros relevantes incluem o tamanho da cabeça da atenção (\textit{head\_size})\footnote{Define o tamanho de cada cabeça na camada de atenção multi-cabeça do \textit{Transformer}. Em modelos de atenção, '\textit{head\_size}' refere-se à dimensão de cada cabeça de atenção individual, sendo um fator crucial para determinar a capacidade do modelo de capturar diferentes aspectos das sequências de entrada}, o número de cabeças (\textit{num\_heads})\footnote{Especifica o número de cabeças na camada de atenção multi-cabeça. O parâmetro '\textit{num\_heads}' é importante para a diversificação da atenção do modelo, permitindo que ele se concentre em diferentes partes da sequência de entrada simultaneamente.}, a dimensão \textit{feed-forward} (\textit{ff\_dim})\footnote{Representa a dimensão da camada \textit{feed-forward} no \textit{Transformer}. Este parâmetro determina o tamanho da camada totalmente conectada que segue a camada de atenção, sendo essencial para a capacidade do modelo de aprender representações complexas.} e a taxa de \textit{dropout} (\textit{dropout\_rate})\footnote{Indica a taxa de \textit{dropout} usada nas camadas do modelo. \textit{Dropout} é uma técnica de regularização usada para prevenir o overfitting, onde uma fração dos neurônios é aleatoriamente desativada durante o treinamento.}. Regularizadores L2 são aplicados nas camadas convolucionais para mitigar o \textit{overfitting}. O modelo é finalizado com uma camada densa para a predição de saída.
+
+\subsection{Treinamento e Avaliação do Modelo}
+O treinamento do modelo é realizado pela função \textit{train\_model}, que emprega a função \textit{fit} do \textit{TensorFlow} para ajustar o modelo aos dados de treino. Os parâmetros de treinamento incluem o tamanho do lote (\textit{batch\_size})\footnote{Específica o tamanho do lote para o treinamento do modelo. O '\textit{batch\_size}' afeta diretamente a eficiência do treinamento e a estabilidade do gradiente durante a otimização.} e o número de épocas (\textit{epochs})\footnote{Determina o número de épocas, ou ciclos completos através do conjunto de dados, para o treinamento do modelo. O número de épocas é crucial para garantir que o modelo tenha tempo suficiente para aprender efetivamente dos dados.}. A avaliação do modelo, conduzida pela função \textit{evaluate\_model}, envolve a geração de previsões tanto para os conjuntos de treino quanto de teste, usando a função \textit{predict} do \textit{TensorFlow}. As previsões são então escaladas novamente para sua forma original usando o \textit{MinMaxScaler}. O erro absoluto médio (MAE) é calculado entre as previsões e os valores reais de teste, ajustando-se o tamanho dos \textit{arrays} de previsão e real para garantir a consistência na comparação.
+
+\subsection{Busca de Hiperparâmetros}
+A busca de hiperparâmetros é conduzida por um método de pesquisa aleatória, implementado no arquivo \textit{main\_random\_loop.py}. Este método itera sobre um espaço de parâmetros pré-definido, que inclui os passos da sequência (\textit{n\_steps})\footnote{Refere-se ao número de passos (ou intervalos de tempo) considerados na entrada do modelo. Este parâmetro é vital para definir o contexto temporal que o modelo usa para fazer previsões.}, tamanho da cabeça da atenção, número de cabeças, dimensão \textit{feed-forward}, taxa de \textit{dropout}, taxa de aprendizado (\textit{learning\_rate})\footnote{Define a taxa de aprendizado para o otimizador do modelo. A taxa de aprendizado é um parâmetro crítico que influencia a velocidade e a eficácia com que o modelo aprende durante o treinamento.}, tamanho do lote e número de épocas. Em cada iteração, um conjunto de parâmetros é selecionado aleatoriamente. O modelo é treinado e avaliado múltiplas vezes (definido por \textit{n\_repetitions}) para cada conjunto de parâmetros. O objetivo é minimizar o MAE médio, com o melhor conjunto de parâmetros sendo registrado para uso posterior. Este processo permite uma exploração eficiente do espaço de hiperparâmetros, identificando configurações ótimas para o modelo de séries temporais.
+
+\subsection{Registro e Monitoramento}
+Utiliza-se o \textit{MLflow}\footnote{\textit{MLflow} é uma plataforma de código aberto para o gerenciamento do ciclo de vida de \textit{machine learning}, oferecendo suporte para experimentação, reprodução e implantação de modelos de aprendizado de máquina. Ela é amplamente utilizada na comunidade de ciência de dados para rastrear experimentos, organizar código, e facilitar a comparação de diferentes modelos e parâmetros.} para o registro e monitoramento das métricas de desempenho durante o processo de busca de hiperparâmetros. Cada métrica MAE é calculada durante as iterações de treinamento e avaliação é registrado, permitindo uma análise detalhada do desempenho do modelo sob diferentes configurações de hiperparâmetros.
